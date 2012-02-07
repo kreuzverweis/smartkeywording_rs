@@ -1,0 +1,10 @@
+= Installation =
+Use the Plugin-Manager to upload the plugin, then activate it.
+
+= Further Installation Hints =
+The plugin replaces the editing UI for resource fields with the shortname 'keywords'.
+For the plugin to work correctly, the 'keywords' field must be of type textarea. 
+When with a UI that uses the Kreuzverweis keyword-service.
+
+= Contact =
+If you have question regarding the plugin, feel free to drop an email to admin@kreuzverweis.com.
