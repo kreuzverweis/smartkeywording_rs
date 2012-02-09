@@ -35,7 +35,7 @@
                     <div style="position:absolute;padding:0px;margin:5px;line-height:10px;top:0px;right:0px;display:none;" id="sugg_help">
                         <span class="label" id="input-suggestions-label" style="vertical-align: middle;">?</span>
                     </div>
-                    <img src="<?php echo $baseurl ?>/plugins/webtagrsp/images/ui-anim_basic_16x16.gif" style="position:absolute;padding:0px;margin:5px;line-height:10px;top:0px;right:0px;display:none;" id="loadingDiv">
+                    <img src="<?php echo $baseurl ?>/plugins/smartkeywording_rs/images/ui-anim_basic_16x16.gif" style="position:absolute;padding:0px;margin:5px;line-height:10px;top:0px;right:0px;display:none;" id="loadingDiv">
                 </div>
             </div>
             <div class="row">

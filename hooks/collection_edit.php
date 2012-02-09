@@ -27,20 +27,7 @@ function HookSmartkeywording_rsCollection_editAdditionalheaderjs(){
 # Hook<Pluginname><Pagename><Hookname>
 function HookSmartkeywording_rsCollection_editAdditionalfields () {
     global $baseurl, $fields, $n, $name, $lang;    
-
-    /*
-                        echo "Keys: ";                        
-                        foreach(array_keys($fields[$n]) AS $value) {
-                           echo $value.", ";
-                         }
-                        
-                        echo "Values: ";
-                        foreach(array_values($fields[$n]) AS $value) {
-                           echo $value.", ";
-                         }
-                         
-      */                        
-	// check if current field has name keywords, if yes add keywording as a service UI ...	   	    
+	   	    
 ?>
     <script type="text/javascript">
         var keywordsFieldId = "keywords";           
@@ -49,8 +36,7 @@ function HookSmartkeywording_rsCollection_editAdditionalfields () {
         var txt_selection_help = "<?php echo $lang["txt_selection_help"]?>";
         var txt_selection_help_content = "<?php echo $lang["txt_selection_help_content"]?>";   
         
-        jQuery(document).ready(function($) {
-            console.debug("hi");      
+        jQuery(document).ready(function($) {              
             preventAutoSubmit();    
             // move webtagrsp to the right position
             $("#webtagrsp").detach().insertAfter("label[for=keywords]");                        

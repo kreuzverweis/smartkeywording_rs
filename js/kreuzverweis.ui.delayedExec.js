@@ -22,22 +22,28 @@
  * theQueue: the name of the queue for the function calls to be executed
 */
 function delayedExec(delay,theFunc,theQueue) {
-	if (!window[theQueue]) {
-		window[theQueue] = new Array();
-	} 			
-	//console.log('queueing one call for '+theFunc);
-	var timer=setTimeout(function (){runIfLatest(theQueue,theFunc);},delay)
-	//console.log('timer is: '+timer);
-	window[theQueue].push(timer);	
+	if (delay == 0) {
+		 console.debug("running call for queue "+theQueue+" immediately without delay");
+		 theFunc.call();
+	} else {
+		if (!window[theQueue]) {
+			window[theQueue] = new Array();
+		} 				
+		//console.debug('queueing one call in queue '+theQueue);
+		var timer=setTimeout(function (){runIfLatest(theQueue,theFunc);},delay)		
+		window[theQueue].push(timer);
+		console.debug('queued timer '+timer+" for queue "+theQueue+". "+ window[theQueue].length+" call(s) in queue");		
+	}	
 }
 
-function runIfLatest(theQueue,theFunc) {
+function runIfLatest(theQueue,theFunc) {	
 	var timer = window[theQueue].shift();
-	// stop oldest one
-	if (window[theQueue].length == 0) {				
-		//console.log('running function after delay, this is '+this);
+	console.debug("processing timer "+timer);
+	if (window[theQueue].length == 0) {						
+		console.debug('running timer '+timer+" as queue length is "+window[theQueue].length);
 		theFunc.call();
 	} else {
+		console.debug("skipping timer "+timer+" as more calls have been queued ...");
 		clearTimeout(timer);
 	}
 }

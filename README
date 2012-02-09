@@ -1,17 +1,10 @@
-This is the Smart Keywording Plugin for ResourceSpace by Kreuzverweis.
+This is the Kreuzverweis Smart Keywording Plugin for ResourceSpace.
 
 = License =
 Apache 2.0
 
-= Building =
-If you are on a non-Windows System, just run packme.sh on the command line
-to create a working ResourceSpace plugin package. The script stores it at ../smartkeywording.rsp.
-
 = Installation =
-Use the Plugin-Manager to upload the plugin, then activate it.
-The plugin replaces the editing UI for resource fields with the shortname 'keywords'.
-For the plugin to work correctly, the 'keywords' field must be of type textarea. 
+See https://github.com/kreuzverweis/smartkeywording_rs/wiki
 
 = System Requirements =
-Please check the plugin's website for the requirements on the server where you
-install the plugin. 
+See https://github.com/kreuzverweis/smartkeywording_rs/wiki

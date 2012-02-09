@@ -76,8 +76,7 @@ function readInitialKeywords() {
 /**
  * Hides the RS keyword field
  */
-function hideKeywordField() {
-	console.debug(keywordsFieldId);
+function hideKeywordField() {	
 	jQuery("#"+keywordsFieldId).hide();
 }
 
@@ -268,13 +267,13 @@ function deSelect(ui) {
 		//jQuery(ui).fadeOut(500, function() {
 			jQuery(ui).css("visibility", "hidden");
 		//});
-		getProposals();
+		getProposals(3500);
 	} else if(jQuery(ui).parent()[0] == jQuery("#selected")[0]) {
 		selected.splice(jQuery.inArray(jQuery(ui).text(), selected), 1);
 		jQuery(ui).fadeOut(500, function() {
 			jQuery(ui).remove();
 		});		
-		getProposals();
+		getProposals(0);
 	} else {//if it has been autocompleted or entered manually
 		jQuery(ui).css("visibility", "none").addClass('primary small');
 		jQuery('#empty-suggestion-text').hide();
@@ -442,7 +441,7 @@ function initWebgui($) {
 		source : function(request, response) {
 			$.ajax({
 				url : "../plugins/smartkeywording_rs/pages/kaasproxy.php",
-				data : {keyword: encodeURIComponent(request.term), service: "by-prefix", limit: 10},
+				data : {keyword: encodeURIComponent(request.term), service: "completions", limit: 10},
 				dataType : "xml",
 				error : function(jqXHR, textStatus, errorThrown) {
 					handleAjaxError(jqXHR);
