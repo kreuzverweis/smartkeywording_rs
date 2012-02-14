@@ -21,17 +21,7 @@ var selected = new Array();
 var complReqs = new Array();
 var propReqs = new Array();
 var waitingForProposals = false;
-var oriColor;
 var jQuery_GET = {};
-
-var dict = {};
-dict.rm_method1 = 'abstracts_dbp37i';
-dict.rm_method2 = 'dbp37i_noloc';
-dict.rm_combined = 'combined';
-dict.abstracts_dbp37i = 'rm_method1';
-dict.dbp37i_noloc = 'rm_method2';
-dict.combined = 'rm_combined';
-
 
 /**
  * Modify RS form so that hitting RETURN on autocompleted keywords does not result
@@ -299,26 +289,11 @@ function createKeywordUIItem(label, score) {
 	return x;
 }
 
-function setRecMethod(newMethodId) {	
+function setRecMethod() {	
 	if (jQuery_GET["split"]) {
 		console.log('parameter split found, setting cookie to '+jQuery_GET["split"]);
 		jQuery.cookie("split", 	jQuery_GET["split"]);
-	} else {
-		var method = dict[jQuery.cookie("split")] || 'rm_random';
-		if(newMethodId) {
-			console.log('new rm method, setting it from ' + method + ' to ' + newMethodId);
-			method = newMethodId;
-			if(newMethodId == 'rm_random') {
-				jQuery.cookie('split', null);
-			} else {
-				jQuery.cookie("split", dict[method], {
-					expires : 365
-				});
-			}
-		}
-		jQuery('a[id*="rm_"]').parent().attr('class', '');
-		jQuery("#" + method).parent().attr('class', 'active');
-	}
+	} 
 }
 
 function sleep(milliseconds) {
@@ -368,7 +343,7 @@ function initWebgui($) {
 		
 
 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-		if(options.url.indexOf("/by-prefix") === 0) {
+		if(options.url.indexOf("/completions") === 0) {
 			while(complReqs.length > 0) {
 				var req = complReqs.pop();
 				console.log("aborting completion request " + req.options.url);

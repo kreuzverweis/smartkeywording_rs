@@ -3,7 +3,7 @@
 # -------
 #
 #
-$lang["txt_input_keyword"]="Enter a keyword, e.g. Simone Laudehr, Airbus A380, Kölner Dom, Baum, Brooklyn Bridge, ...";
+$lang["txt_input_keyword"]="Enter a keyword ...";
 $lang["txt_suggestions"]="Suggestions";
 $lang["txt_suggestions_help"]="Suggestions";
 $lang["txt_suggestions_help_content"]="Suggestions appear here as soon as you have entered one keyword. Select as many suggestions as you like by clicking on them. Of course, you can also enter additional keywords above.";

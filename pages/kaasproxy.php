@@ -26,7 +26,7 @@ global $language;
 // Set your return content type
 header('Content-type: application/xml');
 
-$server = "kvnode2.uni-koblenz.de:8080"; //"data.kreuzverweis.com"; //$_GET["server"];
+$server = "data.kreuzverweis.com";
 $service = $_GET["service"];
 $keyword=$_GET['keyword'];
 $limit=$_GET['limit'];
@@ -37,10 +37,6 @@ if ($limit)
     $path .= '?limit=' . $limit;
 else 
     $path .= '?limit=20';
-    
-/*if ($_GET['split'])
-    $path .= "&split=". $_GET['split'];
-*/
 
 doGet($server,$path,$language);
 

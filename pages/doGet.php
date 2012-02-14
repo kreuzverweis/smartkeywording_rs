@@ -16,6 +16,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
          
+   Portions of this code are based on http://www.websitetoolbox.com/tool/support/117
+
 **/
 
 function _checkBasicFunctions($functionList) {
@@ -30,19 +32,14 @@ function _checkBasicFunctions($functionList) {
 } // end _checkBasicFunctions
 
 
-/* 
-Description: This Function is used to POST values on the Website Toolbox server
-Parameters: $URL - Requested script url
-            $HOST - server host
-*/ 
-function doGet($HOST,$URL,$LANG){    
-    //$originalHeaders = getallheaders();
+function doGet($HOST,$URL,$LANG){        
     $acceptLangHeader = "Accept-Language: ". $LANG;                    
     if (_checkBasicFunctions("curl_init,curl_setopt,curl_exec,curl_close")) {        
         $ch = curl_init("http://".$HOST.$URL);
         curl_setopt($ch, CURLOPT_HEADER, 0);        
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);        
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array($acceptLangHeader));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);      
+        if ($LANG)  
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array($acceptLangHeader));
         $response = curl_exec($ch);      
         curl_close($ch);
     } else if (_checkBasicFunctions("fsockopen,fputs,feof,fread,fgets,fclose")) {   
@@ -51,7 +48,8 @@ function doGet($HOST,$URL,$LANG){
             echo "Error! $errno - $errstr";
         } else {
             $headers .= "GET $URL HTTP/1.1\r\n";
-            $headers .= $acceptLangHeader."\r\n";
+            if ($LANG)
+                $headers .= $acceptLangHeader."\r\n";
             $headers .= "HOST: $HOST\r\n";
             $headers .= "Connection: close\r\n\r\n";
             fputs($fsock, $headers);

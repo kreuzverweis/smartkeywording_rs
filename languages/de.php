@@ -3,7 +3,7 @@
 # -------
 #
 #
-$lang["txt_input_keyword"]="Eingabe, z.B. Simone Laudehr, Airbus A380, Kölner Dom, Baum, Brooklyn Bridge, ...";
+$lang["txt_input_keyword"]="Hier Keyword eingeben ...";
 $lang["txt_suggestions"]="Vorschläge";
 $lang["txt_suggestions_help"]="Vorschläge";
 $lang["txt_suggestions_help_content"]="Vorschläge erscheinen hier sobald Du das erste Keyword eingegeben hast. Klick auf Vorschläge um sie auszuwählen. Natürlich kannst Du auch weitere Keywords selber eingeben.";
