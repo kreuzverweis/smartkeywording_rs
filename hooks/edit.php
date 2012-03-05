@@ -36,7 +36,7 @@ function HookSmartkeywording_rsEditAddfieldextras () {
         var txt_suggestions_help_content = "<?php echo $lang["txt_suggestions_help_content"]?>";
         var txt_selection_help = "<?php echo $lang["txt_selection_help"]?>";
         var txt_selection_help_content = "<?php echo $lang["txt_selection_help_content"]?>";                
-        jQuery(document).ready(function($) {             
+        jQuery(document).ready(function($) {                         
             hideKeywordField();
             readInitialKeywords();
             initWebgui($);

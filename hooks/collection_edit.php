@@ -36,7 +36,7 @@ function HookSmartkeywording_rsCollection_editAdditionalfields () {
         var txt_selection_help = "<?php echo $lang["txt_selection_help"]?>";
         var txt_selection_help_content = "<?php echo $lang["txt_selection_help_content"]?>";   
         
-        jQuery(document).ready(function($) {              
+        jQuery(document).ready(function($) {                          
             preventAutoSubmit();    
             // move webtagrsp to the right position
             $("#webtagrsp").detach().insertAfter("label[for=keywords]");                        

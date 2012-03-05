@@ -59,6 +59,7 @@
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery-1.7.min.js" type="text/javascript"></script>
     <script>
      jQuery.noConflict();
+     if (!window.console) console = {log: function() {},debug: function(){}};
     </script>
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery-ui.min.js" type="text/javascript"></script>    
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery.cookie.js" type="text/javascript"></script>
