@@ -1,0 +1,1 @@
+oauth_user_id,text,YES,,NULL,

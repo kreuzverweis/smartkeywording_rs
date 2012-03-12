@@ -7,5 +7,5 @@ echo "updating version information in smartkeywording_rs.yaml with latest git co
 sed -ibk "s/version: .*/version: $commitnick/" smartkeywording_rs.yaml
 rm smartkeywording_rs.yamlbk
 cd ..
-rm smartkeywording.rsp
-tar -cz -f smartkeywording.rsp --exclude '*.git' smartkeywording_rs
+rm smartkeywording*.rsp
+tar -cz -f smartkeywording-$commitnick.rsp --exclude '*.git' smartkeywording_rs

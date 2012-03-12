@@ -20,8 +20,7 @@ var suggestions = new Array();
 var selected = new Array();
 var complReqs = new Array();
 var propReqs = new Array();
-var waitingForProposals = false;
-var jQuery_GET = {};
+var proxyUrl = "../plugins/smartkeywording_rs/pages/oauthproxy.php";
 
 /**
  * Modify RS form so that hitting RETURN on autocompleted keywords does not result
@@ -41,9 +40,7 @@ function preventAutoSubmit() {
  */
 function updateKeywordField() {
 	jQuery("#"+keywordsFieldId).empty();
-	//jQuery.each(selected,function(index,value){
-		jQuery("#"+keywordsFieldId).append(getKeywordCSV());
-	//});
+	jQuery("#"+keywordsFieldId).append(getKeywordCSV());
 }
 
 /**
@@ -173,8 +170,7 @@ function adText() {
 			jQuery('#infobox_title').fadeIn(4000);
 			jQuery('#infobox_text').fadeIn(4000);
 		});
-	}, 20000);
-	
+	}, 20000);	
 	//jQuery('#ad_text')
 }
 
@@ -182,13 +178,11 @@ function getProposals(delay) {
 	if (!delay && delay!=0)
 		delay = 2500;	
 	delayedExec(delay, function() {						
-		if(selected.length > 0) {
-			waitingForProposals = true;	
-			jQuery("#loadingDiv").show();
-			var url = "../plugins/smartkeywording_rs/pages/kaasproxy.php";
+		if(selected.length > 0) {				
+			jQuery("#loadingDiv").show();			
 			var keywords = getKeywordCSV();
 			jQuery.ajax({
-				url : url,
+				url : proxyUrl,
 				data : {
 					keyword : encodeURIComponent(keywords),
 					service : "proposals",
@@ -238,7 +232,6 @@ function getProposals(delay) {
 				complete : function() {
 					if(propReqs.length <= 1) {
 						jQuery("#loadingDiv").hide();
-						waitingForProposals = false;
 					}					
 				}
 			});
@@ -289,12 +282,7 @@ function createKeywordUIItem(label, score) {
 	return x;
 }
 
-function setRecMethod() {	
-	if (jQuery_GET["split"]) {
-		console.log('parameter split found, setting cookie to '+jQuery_GET["split"]);
-		jQuery.cookie("split", 	jQuery_GET["split"]);
-	} 
-}
+
 
 function sleep(milliseconds) {
 	var start = new Date().getTime();
@@ -340,32 +328,6 @@ function initWebgui($) {
 		offset : 0,
 		trigger : 'hover'
 	});
-		
-
-	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-		if(options.url.indexOf("/completions") === 0) {
-			while(complReqs.length > 0) {
-				var req = complReqs.pop();
-				console.log("aborting completion request " + req.options.url);
-				req.jqxhr.abort();
-			}
-			complReqs.push({
-				options : options,
-				jqxhr : jqXHR
-			});
-		}
-		if(options.url.indexOf("/propose") === 0) {
-			while(propReqs.length > 0) {
-				var req = propReqs.pop();
-				console.log("aborting proposal request " + req.options.url);
-				req.jqxhr.abort();
-			}
-			propReqs.push({
-				options : options,
-				jqxhr : jqXHR
-			});
-		}
-	});	
 
 	$("#suggestions").selectable({
 		selected : function(event, ui) {
@@ -415,7 +377,7 @@ function initWebgui($) {
 	$("#keyword").autocomplete({
 		source : function(request, response) {
 			$.ajax({
-				url : "../plugins/smartkeywording_rs/pages/kaasproxy.php",
+				url : proxyUrl,
 				data : {keyword: encodeURIComponent(request.term), service: "completions", limit: 10},
 				dataType : "xml",
 				error : function(jqXHR, textStatus, errorThrown) {

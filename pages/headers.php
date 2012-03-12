@@ -70,4 +70,4 @@
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/bootstrap-popover.js" type="text/javascript"></script>
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/kreuzverweis.ui.delayedExec.js" type="text/javascript"></script>        
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/kreuzverweis.ui.messages.js" type="text/javascript"></script>
-    <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/kreuzverweis.kaas.webgui.js" type="text/javascript"></script>
+    <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/kreuzverweis.smartkeywording.webgui.js" type="text/javascript"></script>
