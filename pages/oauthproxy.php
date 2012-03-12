@@ -32,15 +32,11 @@ try {
         $clientid = '9bf72ef7-d365-4555-b303-ea686af606b4';
         $clientsecret = '42273579-fb62-4db9-9c9a-4f101111fa17';
 
-        // client manager api: kvnode2.uni-koblenz.de:8082/
-        // keyword service mit oauth 2: kvnode2.uni-koblenz.de:8100/
-        $clientManagerHost = 'kvnode2.uni-koblenz.de';
-        $clientManagerPort = 8082;
+        $clientManagerHost = 'services.kreuzverweis.com';
+        $clientManagerPort = 443;
 
-        $apiHost = 'kvnode2.uni-koblenz.de';
-        $apiPort = 8100;
-
-        //$server = "data.kreuzverweis.com";
+        $apiHost = 'services.kreuzverweis.com';
+        $apiPort = 443;
 
         $service = $_GET["service"];
         $keyword = $_GET['keyword'];
@@ -78,10 +74,10 @@ try {
         //echo "<br/>Time taken for client manager commmunication / access token retrieval = " . number_format(($End - $Start), 2) . " secs";
         
         //echo "<br/><br/><h1>Response</h1>";        
-        $ch = curl_init("http://$apiHost:$apiPort$path");
+        $ch = curl_init("https://$apiHost:$apiPort$path");
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken","Accept-Language: $language"));
         //$response = http_request('GET', $apiHost, $apiPort, $path, array("limit" => $limit), array(), array(), array("Authorization" => "Bearer $accessToken", "Accept-Language" => $language, "Connection" => "close"), 3000);
         $response = curl_exec($ch);
@@ -100,13 +96,13 @@ try {
 function getUserId($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $userref) {
     //request $userid
 
-    $ch = curl_init("http://" . $clientManagerHost . "/api/users");
+    $ch = curl_init("https://" . $clientManagerHost . "/api/users");
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_POST,true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "client=$clientid&secret=$clientsecret");
     curl_setopt($ch, CURLOPT_PORT,$clientManagerPort);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     $response = curl_exec($ch);
     curl_close($ch);
@@ -129,7 +125,7 @@ function getUserId($clientManagerHost, $clientManagerPort, $clientid, $clientsec
 function getAccessTokenForUser($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $user) {
     //get access token for $user and expiration date    
     //echo "<br/>URI is: http://$clientManagerHost:$clientManagerPort/api/users/$user/tokens";
-    $ch = curl_init("http://$clientManagerHost:$clientManagerPort/api/users/$user/tokens");
+    $ch = curl_init("https://$clientManagerHost:$clientManagerPort/api/users/$user/tokens");
     //curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_POST,true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "client=$clientid&secret=$clientsecret");
