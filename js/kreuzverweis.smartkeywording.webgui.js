@@ -68,26 +68,19 @@ function hideKeywordField() {
 }
 
 function handleAjaxError(jqXHR) {
-	switch (jqXHR.status) {
-		case 401:
-			// user unauthorized
-			console.log("authentication failed, not authorized");
-			// if cookies are there but have wrong data
-			if(jQuery.cookie('token') && jQuery.cookie('secret')) {
+	var status = jqXHR.status;
+	switch (true) {
+		case (status >= 400 && status < 500):				
 				// display authentication failure message
-				var m = createMessage('error', txt_authenticationFailed_title, txt_authenticationFailed_content);
+				var m = createMessage('error', jqXHR.statusText, jqXHR.responseText);
 				jQuery(m).appendTo(jQuery('#messages'));
-			}
+			
 			break;
-		case 500:
+		case (status >= 500):
 			// internal server error
-			console.log("internal server error occurred");
-			var m = createMessage('error', txt_internalServerError_title, txt_internalServerError_content);
+			var m = createMessage('error', jqXHR.statusText, jqXHR.responseText);
 			jQuery(m).appendTo(jQuery('#messages'));
-			break;
-		case 0:
-			// abort
-			break;
+			break;		
 		default:
 			console.log("error " + jqXHR.status + " occurred: " + jqXHR.statusText);
 			break;

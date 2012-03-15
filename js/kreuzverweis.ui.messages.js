@@ -22,11 +22,12 @@ function createMessage(type,title,content) {
 			.attr('data-alert', "alert");
 	var closeButton = jQuery('<a>')
 			.attr("class", "close")
-			.attr("href:","#")
+			.attr("href","#")
+			.attr("style","border: 1px solid white; color: white; padding-right:2px;padding-left:2px;border-radius:10px 10px 10px 10px;")
 			.text('x');
-	jQuery(newDiv)
-		.append(closeButton)
+	jQuery(newDiv)		
 		.append(jQuery('<strong>').text(title+' '))
-		.append(content);
+		.append(content)
+		.append(closeButton);
 	return jQuery(newDiv);
 }

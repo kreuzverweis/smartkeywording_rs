@@ -13,3 +13,6 @@ $lang["txt_selection_help"]="Selection";
 $lang["txt_selection_help_content"]="Your selected keywords appear here as soon as you have entered one keyword. Click on keywords to remove them from your selection.";
 
 $lang["txt_btn_clear"]="Remove all keywords";
+
+# setup page
+$lang["txt_oauth_help"]="Enter your client credentials (id and secret) below. They are needed to secure the connection to the Keyword Webservice and for providing customized keyword proposals. If you don't have credentials yet, you can get them online at the Kreuzverweis Backoffice:";

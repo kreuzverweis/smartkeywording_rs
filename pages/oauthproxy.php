@@ -16,154 +16,147 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Some portions of this code are based on http://www.websitetoolbox.com/tool/support/117
  **/
+
+class SmartKeywordingException extends Exception {
+    public $curlHandle;
+    public $response;
+    // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
+    public function __construct($message, $curlHandle, $response) {
+        $this -> curlHandle = $curlHandle;
+        $this -> response = $response;
+        parent::__construct($message);
+    }
+
+    public function getCurlHandle() {
+        return $this -> curlHandle;
+    }
+
+    public function getResponse() {
+        return $this -> response;
+    }
+
+}
+
+$apiHost = 'api.kreuzverweis.com';
+$apiPort = 443;
+$accessToken;
 
 include "../../../include/db.php";
 include "../../../include/authenticate.php";
 
-global $language, $userref;
-
 try {
     //echo "userref: $userref ";
+    $config = get_plugin_config("smartkeywording_rs");
+    $clientid = $config['oauth_client_id'];
+    $clientsecret = $config['oauth_client_secret'];
 
-    if (_checkBasicFunctions("curl_init,curl_setopt,curl_exec,curl_close")) {
-
-        $clientid = '9bf72ef7-d365-4555-b303-ea686af606b4';
-        $clientsecret = '42273579-fb62-4db9-9c9a-4f101111fa17';
-
-        $clientManagerHost = 'services.kreuzverweis.com';
-        $clientManagerPort = 443;
-
-        $apiHost = 'services.kreuzverweis.com';
-        $apiPort = 443;
-
-        $service = $_GET["service"];
-        $keyword = $_GET['keyword'];
-        $limit = $_GET['limit'];
-
-        $limit;
-        if (!$limit)
-            $limit = 20;
-        $path = "/keywords/$service/$keyword?limit=$limit";
-        //echo "<br/> path is: $path";     
-   
-        $accessToken;        
-        // check if user has a valid access token as cookie
-        if (!array_key_exists("oauth_access_token", $_COOKIE)) {
-            $userId;
-            // check if user has a oauth 2 user id
-            $result = sql_query("select oauth_user_id from user where ref=$userref and oauth_user_id is not null");
-            if (count($result) == 0) {
-                //echo "<br/>no client id for user $userref found in db";
-                $userId = getUserId($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $userref);
-            } else {
-                //echo "<br/>oauth user id for user $userref found in db ";
-                $userId = $result[0]['oauth_user_id'];
-                //echo "<br/>oauth user id for user $userref is $userId ";
-            }
-            //echo "<br/>getting new access token from client manager ... ";
-
-            $accessToken = getAccessTokenForUser($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $userId);
-            //echo "<br/>access token from client manager is $accessToken";
+    // check if user has a valid access token as cookie
+    if (!array_key_exists("oauth_access_token", $_COOKIE)) {
+        $userId;
+        // check if user has a oauth 2 user id
+        $result = sql_query("select oauth_user_id from user where ref=$userref and oauth_user_id is not null");
+        if (count($result) == 0) {
+            //echo "<br/>no client id for user $userref found in db";
+            $userId = getUserId($clientid, $clientsecret);
         } else {
-            //echo "<br/>using access token from cookie ";
-            $accessToken = $_COOKIE['oauth_access_token'];
-            //echo "<br/>access token from cookie is $accessToken";
-        }        
-        //echo "<br/>Time taken for client manager commmunication / access token retrieval = " . number_format(($End - $Start), 2) . " secs";
-        
-        //echo "<br/><br/><h1>Response</h1>";        
-        $ch = curl_init("https://$apiHost:$apiPort$path");
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken","Accept-Language: $language"));
-        //$response = http_request('GET', $apiHost, $apiPort, $path, array("limit" => $limit), array(), array(), array("Authorization" => "Bearer $accessToken", "Accept-Language" => $language, "Connection" => "close"), 3000);
-        $response = curl_exec($ch);
-        curl_close($ch);        
-        //echo "Time for keyword request = " . number_format(($End - $Start), 2) . " secs <br/>";
-        header('Content-type: application/xml');
-        echo $response;
+            //echo "<br/>oauth user id for user $userref found in db ";
+            $userId = $result[0]['oauth_user_id'];
+            //echo "<br/>oauth user id for user $userref is $userId ";
+        }
+        //echo "<br/>getting new access token from client manager ... ";
+
+        $accessToken = getAccessTokenForUser($clientid, $clientsecret, $userId);
+        //echo "<br/>access token from client manager is $accessToken";
     } else {
-        header("Status: 501 - Required curl php extension not configured or installed", true, 501);
-    }
-} catch(Exception $E) {
-    print_r("Message: $E->getMessage() <br/>");
-    print_r("Trace: $E->getTraceAsString() <br/>");
+        //echo "<br/>using access token from cookie ";
+        $accessToken = $_COOKIE['oauth_access_token'];
+        //echo "<br/>access token from cookie is $accessToken";
+    }    
+    $service = $_GET["service"];
+    $keyword = $_GET['keyword'];
+    $limit = $_GET['limit'];
+    $limit;
+    if (!$limit)
+        $limit = 20;
+    $path = "/keywords/$service/$keyword?limit=$limit";
+    $response = getKeywords("https://$apiHost:$apiPort$path");    
+    echo $response;
+} catch(SmartKeywordingException $e) {
+    $ch = $e -> getCurlHandle();
+    $response = $e -> getResponse();
+    curl_close($ch);
+    list($header, $body) = explode("\r\n\r\n", $response, 2);
+    $tok = strtok($header, "\r\n");
+    header($tok);
+    echo $e -> getMessage();
+} catch (Exception $e) {
+    header("HTTP/1.1 501 $e->getMessage()");
 }
 
-function getUserId($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $userref) {
+function getKeywords($url) {
+    global $baseurl, $accessToken, $language;
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken", "Accept-Language: $language"));
+    $response = executeRequestAndHandleError("An error occured while getting keyword completions or proposals: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
+    return $response;
+}
+
+function getUserId($clientid, $clientsecret) {
+    global $baseurl, $apiHost, $apiPort, $userref;
     //request $userid
-
-    $ch = curl_init("https://" . $clientManagerHost . "/api/users");
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_POST,true);
+    $ch = curl_init("https://$apiHost:$apiPort/backoffice/users");
+    curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "client=$clientid&secret=$clientsecret");
-    curl_setopt($ch, CURLOPT_PORT,$clientManagerPort);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    //$response = http_request('POST', $clientManagerHost, $clientManagerPort, '/api/users', array(), array('client' => $clientid, 'secret' => $clientsecret), array(), array(), 30);
-
+    $response = executeRequestAndHandleError("An error occured during user creation: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
     $xml = simplexml_load_string($response);
-    //print_r($xml);
-    //$username = $xml->name;
-    //echo "username: $username <br/>";
-
     $userid = $xml -> id;
     //echo "userid: $userid <br/>";
-
     sql_query("update user set oauth_user_id='$userid' where ref=$userref");
     //echo "<br/>stored clientid in db ";
     return $userid;
 }
 
-function getAccessTokenForUser($clientManagerHost, $clientManagerPort, $clientid, $clientsecret, $user) {
-    //get access token for $user and expiration date    
+function getAccessTokenForUser($clientid, $clientsecret, $user) {
+    global $baseurl, $apiHost, $apiPort;
+    //get access token for $user and expiration date
     //echo "<br/>URI is: http://$clientManagerHost:$clientManagerPort/api/users/$user/tokens";
-    $ch = curl_init("https://$clientManagerHost:$clientManagerPort/api/users/$user/tokens");
-    //curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_POST,true);
+    $ch = curl_init("https://$apiHost:$apiPort/backoffice/users/$user/tokens");
+    curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "client=$clientid&secret=$clientsecret");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);    
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    //$response = http_request('POST', $clientManagerHost, $clientManagerPort, $path, array(), array('client' => $clientid, 'secret' => $clientsecret), array(), array(), 30);
+    $response = executeRequestAndHandleError("An error occured while trying to get an access token: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
     //echo "<br/>response is: $response";
     $xml = simplexml_load_string($response);
     if (!$xml) {
         //echo "<br/>an error occurred while trying to read the response for the access token request";
         return false;
     } else {
-        //$accessTokens = $xml->xpath('token[first()]');
-        //echo "<br/>accessTokens is: $accessTokens";
-        $accessToken = $xml->value;
-        $expires = $xml->expires;
-        //echo "<br/>received expiration time $expires";        
-        //$expires = '2012-03-30';
+        $accessToken = $xml -> value;
+        $expires = $xml -> expires;
+        //echo "<br/>received expiration time $expires";
         $_COOKIE['oauth_access_token'] = $accessToken;
-        //echo "<br/>4";
-        //setcookie('oauth_access_token',$accessToken,$expires);
         setcookie('oauth_access_token', $accessToken, strtotime($expires));
-        //echo "<br/>5";
         return $accessToken;
     }
 }
 
-function _checkBasicFunctions($functionList) {
-    $functions = explode(",", $functionList);
-    foreach ($functions as $key => $val) {
-        $function = trim($val);
-        if (!function_exists($function)) {
-            return false;
-        }
+function executeRequestAndHandleError($message, $ch) {
+    curl_setopt($ch, CURLOPT_HEADER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = curl_exec($ch);
+    if ($response === false) {
+        throw new SmartKeywordingException($message, $ch, $response);
     }
-    return true;
-}// end _checkBasicFunctions
+    // check for curl error
+    if (curl_errno($ch)) {
+        throw new SmartKeywordingException($message, $ch, $response);
+    }
+    // check for response error
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 300) {
+        throw new SmartKeywordingException($message, $ch, $response);
+    }
+    curl_close($ch);
+    list($header, $body) = explode("\r\n\r\n", $response, 2);
+    return $body;
+}
 ?>

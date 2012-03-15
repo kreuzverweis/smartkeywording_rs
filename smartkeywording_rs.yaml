@@ -3,4 +3,5 @@ author: Kreuzverweis Solutions GmbH
 version: d6ebba6add
 desc: Smart Keywording Plugin for ResourceSpace
 info_url: https://github.com/kreuzverweis/smartkeywording_rs
+config_url: /plugins/smartkeywording_rs/pages/setup.php
 

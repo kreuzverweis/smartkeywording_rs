@@ -43,10 +43,7 @@
             #selected > .btn {
                 margin: 2px;
             }
-            .alert-message .hero-unit {
-                background: none repeat scroll 0 0 #EEEEEE;
-                border-radius: 3px 3px 3px 3px;
-            }
+            
             
             li.ui-menu-item {
                 text-align: left;
