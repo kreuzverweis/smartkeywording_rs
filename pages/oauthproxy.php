@@ -71,6 +71,9 @@ try {
     } else {
         //echo "<br/>using access token from cookie ";
         $accessToken = $_COOKIE['oauth_access_token'];
+        
+        //TODO check if access token belongs to current user
+        
         //echo "<br/>access token from cookie is $accessToken";
     }    
     $service = $_GET["service"];
@@ -135,7 +138,9 @@ function getAccessTokenForUser($clientid, $clientsecret, $user) {
         $expires = $xml -> expires;
         //echo "<br/>received expiration time $expires";
         $_COOKIE['oauth_access_token'] = $accessToken;
-        setcookie('oauth_access_token', $accessToken, strtotime($expires));
+        //setcookie('oauth_access_token', $accessToken, strtotime($expires));
+        // expire in 10 min. - workaround for missing login hook to remove cookie from previous user on same browser
+        setcookie('oauth_access_token', $accessToken, time()+60*10);
         return $accessToken;
     }
 }
