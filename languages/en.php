@@ -24,3 +24,4 @@ $lang["txt_service_available_title"]="Smart Keywording Web Service Access:";
 $lang["txt_service_unavailable"]="No access to Smart Keywording web service!";
 $lang["txt_credentials_valid_title"]="Validity of client id and secret:";
 $lang["txt_credentials_invalid"]="Wrong client id or client secret.";
+$lang["txt_documentation"]="Documentation";

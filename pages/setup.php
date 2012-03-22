@@ -108,6 +108,12 @@ include "../../../include/header.php";
                     </tr> 
      <?php }}} ?>
     </table>
+    <br/>
+    <h1><?php echo $lang["txt_documentation"];?></h1>
+    <ul>
+        <li><a href="https://github.com/kreuzverweis/smartkeywording_rs/wiki">https://github.com/kreuzverweis/smartkeywording_rs/wiki</a></li>
+    </ul>
+    <iframe width="560" height="315" src="http://www.youtube.com/embed/aSDTNdDewD4" frameborder="0" allowfullscreen></iframe>
 </div>
 <?php
 include "../../../include/footer.php";
