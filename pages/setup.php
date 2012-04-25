@@ -1,39 +1,107 @@
 <?php
+
 include "../../../include/db.php";
 include "../../../include/authenticate.php";
 if (!checkperm("u")) {exit("Permission denied.");
 }
 include "../../../include/general.php";
+include "headers.php";
 include "sk4rs-functions.php";
 
-
-
-if (getval("submit", "") != "") {
+$config = get_plugin_config("smartkeywording_rs");
+//if (getval("submit", "") != "") {
     if (isset($_POST['clientid'])) {
         $clientid_input = $_POST['clientid'];
         //echo "received client id: $clientid_input <br/>";
+        $config['oauth_client_id'] = $clientid_input;
+        set_plugin_config("smartkeywording_rs", $config);
     }
     if (isset($_POST['clientsecret'])) {
         $clientsecret_input = $_POST['clientsecret'];
         //echo "received client secret: $clientsecret_input <br/>";
+        $config['oauth_client_secret'] = $clientsecret_input;
+        set_plugin_config("smartkeywording_rs", $config);
     }
+    if (isset($_POST['annotations'])) {
+        $annotations_learned = $_POST['annotations'];                
+        $config['annotations'] = date(DATE_ISO8601);
+        set_plugin_config("smartkeywording_rs", $config);
+    }            
+//}
 
-    $config['oauth_client_id'] = $clientid_input;
-    $config['oauth_client_secret'] = $clientsecret_input;
+$clientid = NULL;
+$clientsecret = NULL;
+if (isset($config['oauth_client_id']))
+    $clientid=$config['oauth_client_id'];
+if (isset($config['oauth_client_secret']))
+    $clientsecret=$config['oauth_client_secret'];    
 
-    set_plugin_config("smartkeywording_rs", $config);
-
-}
-
-$config = get_plugin_config("smartkeywording_rs");
-$clientid = $config['oauth_client_id'];
-$clientsecret = $config['oauth_client_secret'];
-   
 include "../../../include/header.php";
 ?>
 
 <div class="BasicsBox">
     <h1><a href="http://kreuzverweis.com"><img src="../images/kreuzverweis_logo.png" style="height:1.5em;"/></a> Smart Keywording Setup</h1>
+    <br/><br/>
+    <h2><?php echo $lang["installationcheck"]?></h2>    
+    <a href="">&gt; <?php echo $lang["repeatinstallationcheck"]
+    ?></a>
+    <table class="InfoTable">
+        <tr>
+            <td><?php echo $lang["txt_curl_title"];?></td>
+            <td><?php
+            $isCurl = isCurlAvailable();
+            if ($isCurl)
+                echo $lang["status-ok"];
+            else
+                echo $lang["status-warning"] . ": " . $lang["txt_curl_missing"];
+            ?></td>
+        </tr>
+        <?php
+if ($isCurl) {
+$isHook = isHookAvailable();
+        ?>
+        <tr>
+            <td><?php echo $lang["txt_version_title"];?></td>
+            <td><?php // check for hooks
+                if ($isHook)
+                    echo $lang["status-ok"];
+                else {
+                    echo $lang["status-warning"] . ": " . $lang["txt_outdated"];
+                }
+            ?></td>
+        </tr>
+        <?php
+if ($isHook) {
+$isAccessible = isAccessible();
+        ?>
+        <tr>
+            <td><?php echo $lang["txt_service_available_title"];?></td>
+            <td><?php // check for hooks
+                if ($isAccessible) {
+                    echo $lang["status-ok"];
+                } else {
+                    echo $lang["status-warning"] . ": " . $lang["txt_service_unavailable"];
+                }
+            ?></td>
+        </tr>
+        <?php
+if ($isAccessible) {        
+    $isValid = isValid($clientid, $clientsecret);
+        ?>
+        <tr>
+            <td><?php echo $lang["txt_credentials_valid_title"];?></td>
+            <td><?php
+            if ($isValid)
+                echo $lang["status-ok"];
+            else {
+                echo $lang["status-warning"] . ": " . $lang["txt_credentials_invalid"];
+            }
+            ?></td>
+        </tr>
+        <?php }}}?>
+    </table>
+    <br/><br/><br/>
+    <h2>Client Id + Client Secret</h2>
     <p>
         <?php echo $lang["txt_oauth_help"]
         ?> <a href="https://backoffice.kreuzverweis.com/">Kreuzverweis Backoffice</a>
@@ -48,72 +116,68 @@ include "../../../include/header.php";
         </div>
         <div class="clearerleft"></div>
     </form>
-    
-    <h1><?php echo $lang["installationcheck"]?></h1>
-    <a href="">&gt; <?php echo $lang["repeatinstallationcheck"]?></a>
-    <table class="InfoTable">
-        <tr>
-            <td><?php echo $lang["txt_curl_title"];?></td>
-            <td>
-                <?php 
-                    $isCurl = isCurlAvailable();
-                    if ($isCurl) 
-                        echo $lang["status-ok"];
-                    else
-                        echo $lang["status-warning"].": ".$lang["txt_curl_missing"];                   
+    <br/><br/>
+    <h2><?php echo $lang["txt_learning_title"];?></h2>            
+    <p>
+        <?php echo $lang["txt_learning"];?>        
+        <br/>
+        <?php
+            if (isset($config["annotations"])) {
+                echo $lang["txt_learning_enabled"]."<br/>"; 
+                echo $config["annotations"];
+            } else { 
+                echo $lang["txt_learning_enable"];
                 ?>
-           </td>
-       </tr>
-       <?php        
-       if ($isCurl) { 
-           $isHook = isHookAvailable();?>
-           <tr>
-                <td><?php echo $lang["txt_version_title"];?></td>
-                <td><?php // check for hooks
-                    if ($isHook) 
-                        echo $lang["status-ok"];
-                    else {
-                        echo $lang["status-warning"].": ".$lang["txt_outdated"];
-                    }
-                    ?>
-                </td>
-            </tr>  
-            <?php 
-            if ($isHook) {
-                $isAccessible = isAccessible();?>
-                <tr>
-                    <td><?php echo $lang["txt_service_available_title"]; ?></td>
-                    <td><?php // check for hooks
-                        if ($isAccessible) {
-                            echo $lang["status-ok"];
-                        } else {
-                            echo $lang["status-warning"].": ".$lang["txt_service_unavailable"];
-                        }
-                        ?>
-                    </td>
-                </tr>  
-                <?php 
-                if ($isAccessible) {
-                    $isValid = isValid($clientid, $clientsecret);?> 
-                    <tr>
-                        <td><?php echo $lang["txt_credentials_valid_title"];?></td>
-                        <td><?php                                         
-                                if ($isValid)
-                                    echo $lang["status-ok"];
-                                else {
-                                    echo $lang["status-warning"].": ".$lang["txt_credentials_invalid"];
-                                }
-                            ?>
-                        </td>
-                    </tr> 
-     <?php }}} ?>
-    </table>
-    <br/>
-    <h1><?php echo $lang["txt_documentation"];?></h1>
+                
+                <form id="annotationsform" action="" method="post">
+                    <input type="hidden" name="annotations"/>
+                    <input type="submit" value="<?php echo $lang["txt_learning_button"];?>" />                    
+                </form>
+                <span id="learning_animation" style="display:none;color: gray;">
+                    Sending data to learn from your keywords, please wait ... <img src="../images/ui-anim_basic_16x16.gif">
+                </span><br/>
+                <span id="learning_messages" style="display:none;"></span>            
+                <script type="text/javascript">
+                    var proxyUrl = "<?php echo $baseurl;?>/plugins/smartkeywording_rs/pages/oauthproxy.php";
+                    jQuery(document).ready(function($) {
+                        $("#annotationsform").live('submit',function(event) {
+                            var sendingOk = false;
+                            $("#learning_animation").show();
+                            $.ajax({
+                                url : proxyUrl,
+                                async: false,
+                                data : {
+                                    service : "annotations"
+                                },
+                                error : function(jqXHR, textStatus, errorThrown) {                                    
+                                    $("#learning_messages").empty().append("Sorry, the following error occurred while trying to send keywords: "+jqXHR.responseText).show();                                                                                                         
+                                },
+                                complete : function () {
+                                    $("#learning_animation").hide();
+                                },
+                                success : function () {
+                                    sendingOk = true;
+                                }                          
+                            });
+                            return sendingOk;
+                        });
+                    });
+                </script>
+                
+                
+       <?php } ?>
+      
+        
+    </p>
+    <h2><?php echo $lang["txt_documentation"];?></h2>
     <ul>
-        <li><a href="https://github.com/kreuzverweis/smartkeywording_rs/wiki">https://github.com/kreuzverweis/smartkeywording_rs/wiki</a></li>
+        <li>
+            <a href="https://github.com/kreuzverweis/smartkeywording_rs/wiki">https://github.com/kreuzverweis/smartkeywording_rs/wiki</a>
+        </li>
+        <li>
+            <iframe style="width:300px;vertical-align:top;" src="http://www.youtube.com/embed/aSDTNdDewD4" frameborder="0" allowfullscreen></iframe>
+        </li>
     </ul>
-    <iframe width="560" height="315" src="http://www.youtube.com/embed/aSDTNdDewD4" frameborder="0" allowfullscreen></iframe>
 </div>
 <?php
 include "../../../include/footer.php";

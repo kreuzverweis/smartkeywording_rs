@@ -18,8 +18,9 @@
 
  **/
 
-$apiHost = 'api.kreuzverweis.com';
+$apiHost = 'api-dev.kreuzverweis.com';
 $apiPort = 443;
+
 
 function getKeywords($url) {
     global $baseurl, $accessToken, $language;
@@ -72,7 +73,7 @@ function getAccessTokenForUser($clientid, $clientsecret, $user) {
 function getUserCount($clientid, $clientsecret) {
     global $baseurl, $apiHost, $apiPort;
     $ch = curl_init("https://$apiHost:$apiPort/backoffice/users/count?client=$clientid&secret=$clientsecret");
-    $usercount = executeRequestAndHandleError("exception while trying to get user count", $ch);    
+    $usercount = executeRequestAndHandleError("exception while trying to get user count", $ch);
     return $usercount;
 }
 
@@ -98,27 +99,27 @@ function executeRequestAndHandleError($message, $ch) {
 
 function isValid($clientid, $clientsecret) {
     try {
-        $count = getUserCount($clientid,$clientsecret);
+        $count = getUserCount($clientid, $clientsecret);
         return true;
     } catch (SmartKeywordingException $e) {
-        $ch = $e->getCurlHandle();
+        $ch = $e -> getCurlHandle();
         curl_close($ch);
-        return false;       
+        return false;
     }
 }
 
 function isAccessible() {
     try {
-        $count = getUserCount(1,2);
+        $count = getUserCount(1, 2);
         return true;
     } catch (SmartKeywordingException $e) {
-        $ch = $e->getCurlHandle();
+        $ch = $e -> getCurlHandle();
         $cerror = curl_errno($ch);
         $responseStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if ($responseStatus == 401)
-            return true;           
-        return false;                          
+            return true;
+        return false;
     }
 }
 
@@ -142,6 +143,64 @@ function isHookAvailable() {
     return false;
 }
 
+/**
+ * Posts an array of annotations (an array of keywords used together)
+ * to Smart Keywording to learn user specific keywords
+ */
+function learnAnnotations() {
+    global $baseurl, $apiHost, $apiPort, $accessToken;
+    try {        
+        // get data from keyword, resource_keyword, and resource_type_field tables
+        //SELECT rk.resource, k.keyword FROM `resource_keyword` rk, keyword k WHERE rk.keyword=k.ref and resource_type_field=(select ref from resource_type_field where name='keywords') order by resource
+        // get data from resource_data table
+        $moreData = true;
+        $offset = 0;
+        $annotationCount = 0;
+        while ($moreData) {
+            $query = "SELECT value FROM resource_data rd WHERE resource_type_field=(select ref from resource_type_field where name='keywords') and value != '' limit 100 offset $offset";
+            $result = sql_array($query);
+            if ($result && !empty($result)) {
+                $data = "<annotations>";
+                foreach ($result as $annotation) {
+                    $annotationCount += 1;
+                    $data = $data . "<annotation>";
+                    $tok = strtok($annotation, ",");
+                    while ($tok !== false) {
+                        $data = $data . "<keyword>".trim($tok)."</keyword>";                    
+                        $tok = strtok(",");
+                    }
+                    $data = $data . "</annotation>";
+                }
+                $data = $data . "</annotations>";
+                $ch = curl_init("https://$apiHost:$apiPort/annotations");
+                curl_setopt($ch, CURLOPT_POST, true);
+                //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: $language"));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken","Content-Type: text/xml", "Content-length: " . strlen($data)));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                //echo $data;
+                echo "posting annotations to https://$apiHost:$apiPort/annotations<br/>";
+                $response = executeRequestAndHandleError("Error while posting annotations to Smart Keywording", $ch);
+                $offset = $offset + 100;
+                echo $response;
+            } else {
+                $moreData = false;
+            }        
+        }
+        return $annotationCount;
+    } catch (SmartKeywordingException $e) {
+        $ch = $e -> getCurlHandle();
+        $response = $e -> getResponse();
+        curl_close($ch);
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $tok = strtok($header, "\r\n");
+        header($tok);
+        echo $e -> getMessage();
+        echo "<br/>Access token: $accessToken";
+        echo "<br/>$header";
+        echo "<br/>$body";
+    }
+}
+
 class SmartKeywordingException extends Exception {
     public $curlHandle;
     public $response;
@@ -159,4 +218,5 @@ class SmartKeywordingException extends Exception {
     public function getResponse() {
         return $this -> response;
     }
+
 }

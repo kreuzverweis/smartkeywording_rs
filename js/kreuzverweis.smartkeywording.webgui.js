@@ -358,11 +358,13 @@ function initWebgui($) {
 		var code = (e.keyCode ? e.keyCode : e.which);
 		// if ENTER is pressed
 		 if (code == 13) { 
-		 	$('#keyword').autocomplete("close");
-		 	var ui = createKeywordUIItem($(this).val(), 0.0);
-			deSelect(ui);
-			$(this).val("");
-			return false;
+		 	if ($(this).val()!="") {
+			 	$('#keyword').autocomplete("close");
+			 	var ui = createKeywordUIItem($(this).val(), 0.0);
+				deSelect(ui);
+				$(this).val("");
+				return false;
+			}
 		 }
 	});
 

@@ -16,6 +16,7 @@
    limitations under the License.
          
 **/
+global $baseurl;  
 ?>
 <link type="text/css" href="<?php echo $baseurl?>/plugins/smartkeywording_rs/css/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="<?php echo $baseurl?>/plugins/smartkeywording_rs/css/bootstrap-popover.css"/>

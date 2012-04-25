@@ -25,3 +25,8 @@ $lang["txt_service_unavailable"]="Smart Keywording Webservice nicht erreichbar!"
 $lang["txt_credentials_valid_title"]="Validity of client id and secret:";
 $lang["txt_credentials_invalid"]="Wrong client id or client secret.";
 $lang["txt_documentation"]="Dokumentation";
+
+$lang["txt_learning_title"]="Angepasste Schlagwortvorschläge";
+$lang["txt_learning"]="Du kannst auf Dich angepasste Schlagwortvorschläge erhalten, die auf Deiner typischen Schlagwortnutzung basieren.";
+$lang["txt_learning_button"]="Meine Schlagworte lernen!";
+$lang["txt_learning"]="Drück den folgenden Knopf um Deine Schlagworte an Smart Keywording zu senden und angepasste Schlagwortvorschläge zu erhalten.";
