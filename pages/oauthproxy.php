@@ -28,8 +28,7 @@ try {
     //echo "userref: $userref ";
     $config = get_plugin_config("smartkeywording_rs");
     $clientid = $config['oauth_client_id'];
-    $clientsecret = $config['oauth_client_secret'];
-
+    $clientsecret = $config['oauth_client_secret'];    
     // check if user has a valid access token as cookie
     if (!array_key_exists("oauth_access_token", $_COOKIE)) {
         $userId;
@@ -42,7 +41,7 @@ try {
             //echo "<br/>oauth user id for user $userref found in db ";
             $userId = $result[0]['oauth_user_id'];
             //echo "<br/>oauth user id for user $userref is $userId ";
-        }
+        }        
         //echo "<br/>getting new access token from client manager ... ";
         $accessToken = getAccessTokenForUser($clientid, $clientsecret, $userId);
         //echo "<br/>access token from client manager is $accessToken";
@@ -54,26 +53,26 @@ try {
     $service = $_GET["service"];
     if ($service == "annotations") {
         echo learnAnnotations();
-    } else {
+    } else {        
         $keyword = $_GET['keyword'];
-        $limit = $_GET['limit'];
-        $limit;
+        $limit = $_GET['limit'];        
         if (!$limit)
             $limit = 20;
-        $path = "/keywords/$service/$keyword?limit=$limit";
+        $path = "/keywords/$service/$keyword?limit=$limit";        
         $response = getKeywords("https://$apiHost:$apiPort$path");
         echo $response;
     }
 } catch(SmartKeywordingException $e) {
     $ch = $e -> getCurlHandle();
     $response = $e -> getResponse();
-    curl_close($ch);
+    echo $e -> getMessage();
+    curl_close($ch);        
     if ($response) {
         list($header, $body) = explode("\r\n\r\n", $response, 2);
         $tok = strtok($header, "\r\n");
         header($tok);
+        echo $body;
     }
-    echo $e -> getMessage();
 } catch (Exception $e) {
     header("HTTP/1.1 501 $e->getMessage()");
 }

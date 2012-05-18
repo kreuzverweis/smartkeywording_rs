@@ -18,13 +18,13 @@
 
  **/
 
-$apiHost = 'api-dev.kreuzverweis.com';
+$apiHost = 'api.kreuzverweis.com';
 $apiPort = 443;
 
 
 function getKeywords($url) {
     global $baseurl, $accessToken, $language;
-    $ch = curl_init($url);
+    $ch = curl_init($url);    
     curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken", "Accept-Language: $language"));
     $response = executeRequestAndHandleError("An error occured while getting keyword completions or proposals: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
     return $response;
@@ -73,33 +73,35 @@ function getAccessTokenForUser($clientid, $clientsecret, $user) {
 function getUserCount($clientid, $clientsecret) {
     global $baseurl, $apiHost, $apiPort;
     $ch = curl_init("https://$apiHost:$apiPort/backoffice/users/count?client=$clientid&secret=$clientsecret");
-    $usercount = executeRequestAndHandleError("exception while trying to get user count", $ch);
+    $usercount = executeRequestAndHandleError("exception while trying to get user count", $ch);    
     return $usercount;
 }
 
 function executeRequestAndHandleError($message, $ch) {
     curl_setopt($ch, CURLOPT_HEADER, 1);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    
     $response = curl_exec($ch);
     if ($response === false) {
+        //echo "erahe 2";
         throw new SmartKeywordingException($message, $ch, $response);
     }
     // check for curl error
     if (curl_errno($ch)) {
+        //echo "erahe 3";
         throw new SmartKeywordingException($message, $ch, $response);
-    }
-    // check for response error
-    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 300) {
-        throw new SmartKeywordingException($message, $ch, $response);
-    }
-    curl_close($ch);
+    }    
     list($header, $body) = explode("\r\n\r\n", $response, 2);
+    // check for response error
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 300) {        
+        throw new SmartKeywordingException($message . $body, $ch, $response);
+    }
+    curl_close($ch);    
     return $body;
 }
 
 function isValid($clientid, $clientsecret) {
     try {
-        $count = getUserCount($clientid, $clientsecret);
+        $count = getUserCount($clientid, $clientsecret);        
         return true;
     } catch (SmartKeywordingException $e) {
         $ch = $e -> getCurlHandle();
@@ -172,7 +174,7 @@ function learnAnnotations() {
                     $data = $data . "</annotation>";
                 }
                 $data = $data . "</annotations>";
-                $ch = curl_init("https://$apiHost:$apiPort/annotations");
+                $ch = curl_init("https://$apiHost:$apiPort/keywords/annotations");
                 curl_setopt($ch, CURLOPT_POST, true);
                 //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: $language"));
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $accessToken","Content-Type: text/xml", "Content-length: " . strlen($data)));
@@ -194,6 +196,7 @@ function learnAnnotations() {
         list($header, $body) = explode("\r\n\r\n", $response, 2);
         $tok = strtok($header, "\r\n");
         header($tok);
+        echo "\r\n\r\n";
         echo $e -> getMessage();
         echo "<br/>Access token: $accessToken";
         echo "<br/>$header";

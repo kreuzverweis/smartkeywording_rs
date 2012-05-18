@@ -22,50 +22,7 @@ var complReqs = new Array();
 var propReqs = new Array();
 var proxyUrl = "../plugins/smartkeywording_rs/pages/oauthproxy.php";
 
-/**
- * Modify RS form so that hitting RETURN on autocompleted keywords does not result
- * in form submission
- */
-function preventAutoSubmit() {	
-	console.debug("preventing form autosubmission ...");
-	jQuery("#mainform").attr('onSubmit',"return false");
-	jQuery(".QuestionSubmit > input[name='resetform']").attr("onClick","reset()");
-	jQuery(".QuestionSubmit > input[name='save']").attr("onClick",'jQuery("#mainform").submit()');
-	jQuery("#question_copyfrom > input[name='copyfromsubmit']").attr("onClick",'jQuery("#mainform").submit()');
-	console.debug("onClick for save button is: "+jQuery(".QuestionSubmit > input[name='save']").attr("onClick"));
-}
 
-/**
- * Updates the RS keyword field with the current selection
- */
-function updateKeywordField() {
-	jQuery("#"+keywordsFieldId).empty();
-	jQuery("#"+keywordsFieldId).append(getKeywordCSV());
-}
-
-/**
- * Read keywords from keywordsField and show them ...
- */
-function readInitialKeywords() {
-	var keywords = jQuery("#"+keywordsFieldId).text().split(",");
-	jQuery.each(keywords,function(index,value){
-		var trimmed = jQuery.trim(value);
-		if (trimmed != "") {
-			selected.push(trimmed);		
-			jQuery("#selected").append(jQuery(jQuery(createKeywordUIItem(trimmed)).addClass('primary small')));
-			// make clear button visible
-			jQuery("#clear").show();
-		}
-	});
-	getProposals(0);
-}
-
-/**
- * Hides the RS keyword field
- */
-function hideKeywordField() {	
-	jQuery("#"+keywordsFieldId).hide();
-}
 
 function handleAjaxError(jqXHR) {
 	var status = jqXHR.status;
@@ -73,8 +30,7 @@ function handleAjaxError(jqXHR) {
 		case (status >= 400 && status < 500):				
 				// display authentication failure message
 				var m = createMessage('error', jqXHR.statusText, jqXHR.responseText);
-				jQuery(m).appendTo(jQuery('#messages'));
-			
+				jQuery(m).appendTo(jQuery('#messages'));			
 			break;
 		case (status >= 500):
 			// internal server error
