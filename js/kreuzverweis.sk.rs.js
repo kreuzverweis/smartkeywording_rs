@@ -51,12 +51,53 @@ function readInitialKeywords() {
 			jQuery("#clear").show();
 		}
 	});
-	getProposals(0);
+	requestProposals(0);
 }
 
 /**
- * Hides the RS keyword field
+ * Hides the RS keyword field in edit.php
  */
 function hideKeywordField() {	
 	jQuery("#"+keywordsFieldId).hide();
+}
+
+
+function addSKAutocomplete(fieldId) {
+	jQuery("#"+fieldId).autocomplete({
+		source : function(request, response) {
+			jQuery.ajax({
+				url : proxyUrl,
+				data : {keyword: encodeURIComponent(request.term), service: "completions", limit: 10},
+				dataType : "xml",
+				error : function(jqXHR, textStatus, errorThrown) {
+					handleAjaxError(jqXHR);
+				},
+				complete : function() {
+					jQuery("#"+fieldId).removeClass("ui-autocomplete-loading");
+				},
+				success : function(xmlResponse, jqxhr) {
+					if(jQuery('keyword', xmlResponse).length == 0) {
+						console.debug("no completions found");
+						response();
+					} else {
+						response(jQuery("keyword", xmlResponse).map(function() {
+							return {
+								value : jQuery("label", this).text() + (jQuery.trim(jQuery("synonyms", this).text()) || ""),
+								score : jQuery("score", this).text()
+							};
+						}));						
+					}
+				}
+			})
+		},
+		delay : 200,
+		minLength : 3,
+		autoFocus : false,		
+		open : function() {			
+			jQuery(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+		},
+		close : function() {			
+			jQuery(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+		}
+	});
 }
