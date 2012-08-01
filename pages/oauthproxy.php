@@ -24,6 +24,21 @@ include "../../../include/db.php";
 include "../../../include/authenticate.php";
 include "./sk4rs-functions.php";
 
+function currentUserId() {
+    global $userref;
+    // check if user has a oauth 2 user id
+    $result = sql_query("select oauth_user_id from user where ref=$userref and oauth_user_id is not null and oauth_user_id != ''");
+    if (count($result) == 0) {
+        //echo "<br/>no user id for user $userref found in db";
+        $userId = getUserId($clientid, $clientsecret);
+    } else {
+        //echo "<br/>oauth user id for user $userref found in db ";
+        $userId = $result[0]['oauth_user_id'];
+        //echo "<br/>oauth user id for user $userref is $userId ";
+    }        
+    return $userId;
+}
+
 try {
     //echo "userref: $userref ";
     $config = get_plugin_config("smartkeywording_rs");
@@ -31,18 +46,8 @@ try {
     $clientsecret = $config['oauth_client_secret'];    
     // check if user has a valid access token as cookie
     if (!array_key_exists("oauth_access_token", $_COOKIE)) {
-        $userId;
-        // check if user has a oauth 2 user id
-        $result = sql_query("select oauth_user_id from user where ref=$userref and oauth_user_id is not null and oauth_user_id != ''");
-        if (count($result) == 0) {
-            //echo "<br/>no user id for user $userref found in db";
-            $userId = getUserId($clientid, $clientsecret);
-        } else {
-            //echo "<br/>oauth user id for user $userref found in db ";
-            $userId = $result[0]['oauth_user_id'];
-            //echo "<br/>oauth user id for user $userref is $userId ";
-        }        
         //echo "<br/>getting new access token from client manager ... ";
+        $userId = currentUserId();
         $accessToken = getAccessTokenForUser($clientid, $clientsecret, $userId);
         //echo "<br/>access token from client manager is $accessToken";
     } else {
@@ -59,7 +64,16 @@ try {
         if (!$limit)
             $limit = 20;
         $path = "/keywords/$service/$keyword?limit=$limit";        
-        $response = getKeywords("https://$apiHost:$apiPort$path");
+        try {
+            $response = getKeywords("https://$apiHost:$apiPort$path");
+        } catch (SmartKeywordingException $e) {
+            $ch = $e -> getCurlHandle();
+            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 401) { 
+                $userId = currentUserId();
+                getAccessTokenForUser($clientid, $clientsecret, $userId);
+                $response = getKeywords("https://$apiHost:$apiPort$path");
+            }        
+        }
         echo $response;
     }
 } catch(SmartKeywordingException $e) {

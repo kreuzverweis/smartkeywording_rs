@@ -45,14 +45,21 @@ function getUserId($clientid, $clientsecret) {
     return $userid;
 }
 
-function getAccessTokenForUser($clientid, $clientsecret, $user) {
+function getAccessTokenForUser($clientid, $clientsecret, $user, $retry = false) {
     global $baseurl, $apiHost, $apiPort;
     //get access token for $user and expiration date
     //echo "<br/>URI is: http://$clientManagerHost:$clientManagerPort/api/users/$user/tokens";
     $ch = curl_init("https://$apiHost:$apiPort/backoffice/users/$user/tokens");
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "client=$clientid&secret=$clientsecret");
-    $response = executeRequestAndHandleError("An error occured while trying to get an access token: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
+    try {
+        $response = executeRequestAndHandleError("An error occured while trying to get an access token: Is the plugin correctly setup? Please check <a href='$baseurl/plugins/smartkeywording_rs/pages/setup.php'>your configuration</a>.", $ch);
+    } catch(SmartKeywordingException $e) {
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 404 && !$retry) { 
+            $newuserid = getUserId($clientid, $clientsecret);
+            return getAccessTokenForUser($clientid, $clientsecret, $newuserid, true);
+        }
+    }
     //echo "<br/>response is: $response";
     $xml = simplexml_load_string($response);
     if (!$xml) {
