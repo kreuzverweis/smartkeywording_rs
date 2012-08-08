@@ -86,7 +86,8 @@ function getUserCount($clientid, $clientsecret) {
 
 function executeRequestAndHandleError($message, $ch) {
     curl_setopt($ch, CURLOPT_HEADER, 1);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     $response = curl_exec($ch);
     if ($response === false) {
         //echo "erahe 2";

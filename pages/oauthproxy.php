@@ -25,7 +25,7 @@ include "../../../include/authenticate.php";
 include "./sk4rs-functions.php";
 
 function currentUserId() {
-    global $userref;
+    global $userref, $clientid, $clientsecret;
     // check if user has a oauth 2 user id
     $result = sql_query("select oauth_user_id from user where ref=$userref and oauth_user_id is not null and oauth_user_id != ''");
     if (count($result) == 0) {
