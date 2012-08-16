@@ -23,6 +23,7 @@ include "../../../include/authenticate.php";
 if (!checkperm("u")) {exit("Permission denied.");
 }
 include "../../../include/general.php";
+include "../../../include/header.php";
 include "headers.php";
 include "sk4rs-functions.php";
 
@@ -54,7 +55,6 @@ if (isset($config['oauth_client_id']))
 if (isset($config['oauth_client_secret']))
     $clientsecret = $config['oauth_client_secret'];
 
-include "../../../include/header.php";
 ?>
 
 <div class="BasicsBox">
