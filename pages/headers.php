@@ -52,14 +52,11 @@ global $baseurl;
         </style>
     
     
-    <!--<script type="text/javascript" src="<?php echo $baseurl?>/lib/js/jquery-1.6.1.min.js" ></script>-->
-    
-    <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery-1.7.min.js" type="text/javascript"></script>
+    <!--<script type="text/javascript" src="<?php echo $baseurl?>/lib/js/jquery-1.6.1.min.js" ></script>-->        
     <script>
      jQuery.noConflict();
      if (!window.console) console = {log: function() {},debug: function(){}};
-    </script>
-    <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery-ui.min.js" type="text/javascript"></script>    
+    </script>        
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery.cookie.js" type="text/javascript"></script>
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/jquery.tools.min.js" type="text/javascript"></script>    
     <script src="<?php echo $baseurl?>/plugins/smartkeywording_rs/js/bootstrap-alerts.js" type="text/javascript"></script>
