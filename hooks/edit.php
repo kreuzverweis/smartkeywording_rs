@@ -18,20 +18,14 @@
          
 **/
 
-function HookSmartkeywording_rsEditAdditionalheaderjs(){
-    global $baseurl;    
-    include "../plugins/smartkeywording_rs/pages/headers.php";
-    return false;   
-}
-
 # Hook<Pluginname><Pagename><Hookname>
 function HookSmartkeywording_rsEditAddfieldextras () { 
-    global $baseurl, $fields, $n, $name, $lang, $edit_autosave, $ref;      
+    global $baseurl, $fields, $n, $name, $lang, $edit_autosave, $ref;   
 	// check if current field has name keywords, if yes add keywording as a service UI ...
-	if (strtolower($fields[$n]["name"]=="keywords")) {	    	    
+	if (strtolower($fields[$n]["name"]=="keywords")) {
 ?>
     <script type="text/javascript">
-        var keywordsFieldId ="<?php echo $name ?>";           
+        var keywordsFieldId ="field_1";           
         var txt_suggestions_help = "<?php echo $lang["txt_suggestions_help"]?>";
         var txt_suggestions_help_content = "<?php echo $lang["txt_suggestions_help_content"]?>";
         var txt_selection_help = "<?php echo $lang["txt_selection_help"]?>";

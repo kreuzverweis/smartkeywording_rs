@@ -176,7 +176,8 @@ function learnAnnotations() {
                     $data = $data . "<annotation>";
                     $tok = strtok($annotation, ",");
                     while ($tok !== false) {
-                        $data = $data . "<keyword>".trim($tok)."</keyword>";                    
+                        $keyword = htmlspecialchars($tok, ENT_XML1);
+                        $data = $data . "<keyword>".trim($keyword)."</keyword>";                    
                         $tok = strtok(",");
                     }
                     $data = $data . "</annotation>";

@@ -17,13 +17,6 @@
          
 **/
 
-function HookSmartkeywording_rsCollection_editAdditionalheaderjs(){
-    global $baseurl;    
-    include "../plugins/smartkeywording_rs/pages/headers.php";
-    return false;   
-}
-
-
 # Hook<Pluginname><Pagename><Hookname>
 function HookSmartkeywording_rsCollection_editAdditionalfields () {
     global $baseurl, $fields, $n, $name, $lang;    
